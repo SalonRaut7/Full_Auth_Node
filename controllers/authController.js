@@ -30,11 +30,10 @@ exports.signup = async (req, res) => {
     });
     const accessToken = generateAccessToken(newUser);
     const refreshToken = generateRefreshToken(newUser);
-
     newUser.refreshToken = refreshToken;
     await newUser.save();
-
-    await newUser.save();
+    res.cookie('accessToken', accessToken);
+    
     res.status(201).json({ message: 'User registered successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -66,6 +65,8 @@ exports.login = async (req, res) => {
 
     user.refreshToken = refreshToken;
     await user.save();
+    res.cookie('accessToken', accessToken);
+    res.cookie('refreshToken', refreshToken);
     res.status(200).json({
       message: 'Login successful',
       accessToken,

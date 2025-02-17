@@ -1,4 +1,3 @@
-// utils/token.js
 const jwt = require('jsonwebtoken');
 
 // Generate short-lived Access Token
