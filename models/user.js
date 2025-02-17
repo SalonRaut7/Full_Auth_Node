@@ -1,0 +1,12 @@
+const mongoose = require('mongoose');
+mongoose.connect('mongodb://127.0.0.1:27017/authenticationdetails');
+
+
+const userSchema = mongoose.Schema({
+    Full_Name: String,
+    email: String,
+    password:String,
+    refreshToken: String
+});
+
+module.exports = mongoose.model('user', userSchema);
