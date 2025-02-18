@@ -54,6 +54,35 @@ router.post('/logout', async (req, res) => {
     res.status(200).json({ message: 'Logged out successfully' });
 });
 
+router.get('/verify-email/:userId', (req, res) => {
+    const { userId } = req.params;
+    res.render('verify-email', { userId }); 
+  });
+
+  router.post('/verify-email/:userId', async (req, res) => {
+    const { userId } = req.params;
+    const { code } = req.body;
+  
+    // Find the user by the userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+  
+    // Check if the OTP matches
+    if (user.verificationCode !== code) {
+      return res.status(400).json({ message: 'Invalid verification code' });
+    }
+  
+    // OTP is correct, set user as verified
+    user.isVerified = true;
+    user.verificationCode = null; // Clear the code after verification
+    await user.save();
+  
+    // Redirect to the dashboard
+    res.redirect('/dashboard');
+  });  
+
 
 router.post('/api/signup', signup);
 router.post('/api/login', login);
