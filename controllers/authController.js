@@ -5,13 +5,24 @@ const jwt = require('jsonwebtoken');
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
-
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //regular expression for validating email format
 // @desc Register User
 // @route POST /auth/signup
 // @access Public
 exports.signup = async (req, res) => {
   try {
     const { fullname, email, password ,confirmPassword} = req.body;
+    //email validation
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
+    //password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/; //regular expression for validating password requirements
+    if (!passwordRegex.test(password)) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters long, contain an uppercase letter, a number, and a special character.'
+      });
+    }
     // Check if the both the passwords are matched
     if(password !== confirmPassword){
       return res.status(401).json({message: 'passwords fields do not match'});
@@ -71,7 +82,9 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ message: 'Invalid email format' });
+    }
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
