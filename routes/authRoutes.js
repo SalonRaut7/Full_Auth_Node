@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login } = require('../controllers/authController');
+const { signup, login, forgotPasswordPage } = require('../controllers/authController');
 const { authenticateToken } = require('../middleware/authMiddleware');
 const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
+const { forgotPassword, resetPasswordPage, resetPassword } = require('../controllers/authController');
 
 router.get('/dashboard', authenticateToken, (req, res) => {
   res.render('dashboard', { user: req.user });
@@ -86,5 +87,11 @@ router.get('/verify-email/:userId', (req, res) => {
 
 router.post('/api/signup', signup);
 router.post('/api/login', login);
+
+
+router.get('/forgot-password',forgotPasswordPage);
+router.post('/forgot-password', forgotPassword);
+router.get('/reset-password/:token', resetPasswordPage);
+router.post('/reset-password/:token', resetPassword);
 
 module.exports = router;

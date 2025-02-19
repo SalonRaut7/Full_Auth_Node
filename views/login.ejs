@@ -1,12 +1,10 @@
-<!-- views/login.ejs -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login - Tailwind</title>
-  
-  <!-- Tailwind CSS via CDN -->
+ 
   <script src="https://cdn.tailwindcss.com"></script>
   
   <style>
@@ -36,6 +34,11 @@
         <input type="password" name="password" id="password" required 
           class="w-full px-4 py-2 mt-1 text-gray-700 bg-gray-100 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Enter your password">
+      </div>
+
+      <!-- Forgot Password Link -->
+      <div class="text-right">
+        <a href="/forgot-password" class="text-sm text-blue-500 hover:underline">Forgot Password?</a>
       </div>
 
       <!-- Submit Button -->
