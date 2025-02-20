@@ -6,10 +6,41 @@ const User = require('../models/user');
 const jwt = require('jsonwebtoken');
 const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 const { forgotPassword, resetPasswordPage, resetPassword } = require('../controllers/authController');
+const passport = require('passport');
 
-router.get('/dashboard', authenticateToken, (req, res) => {
-  res.render('dashboard', { user: req.user });
+
+router.get('/dashboard', (req, res) => {
+  const token = req.cookies.accessToken;
+
+  if (!token) {
+    return res.redirect('/login'); // Redirect if no token found
+  }
+
+  try {
+    // Verify the token and extract user info
+    const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET);
+    res.render('dashboard', { user: decoded });
+  } catch (error) {
+    return res.redirect('/login');
+  }
 });
+
+
+router.get('/auth/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+// Google callback URL after successful login
+router.get(
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
+  (req, res) => {
+    const accessToken = jwt.sign({ id: req.user._id ,email: req.user.email}, process.env.ACCESS_TOKEN_SECRET, {
+      expiresIn: '1h',
+    });
+
+    res.cookie('accessToken', accessToken);
+    res.redirect('/dashboard');
+  }
+);
 
 
 router.get('/login', (req, res) => {

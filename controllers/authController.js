@@ -6,6 +6,8 @@ const { generateAccessToken, generateRefreshToken } = require('../utils/token');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; //regular expression for validating email format
+const passport = require('passport');
+const GoogleStrategy = require('passport-google-oauth20').Strategy;
 // @desc Register User
 // @route POST /auth/signup
 // @access Public
@@ -199,3 +201,48 @@ exports.resetPassword = async (req, res) => {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 };
+
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,  
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,  
+      callbackURL: "http://localhost:8000/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      try {
+        // Check if user already exists in the database
+        let user = await User.findOne({ googleId: profile.id });
+
+        if (!user) {
+          // If user doesn't exist, create a new user
+          user = new User({
+            googleId: profile.id,
+            Full_Name: profile.displayName,
+            email: profile.emails[0].value,
+            isVerified: true, // Google users are already verified
+          });
+
+          await user.save();
+        }
+
+        return done(null, user);
+      } catch (error) {
+        return done(error, null);
+      }
+    }
+  )
+);
+
+// Serialize user data
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+// Deserialize user data
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id);
+  done(null, user);
+});
+
