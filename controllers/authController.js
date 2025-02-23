@@ -109,11 +109,12 @@ exports.login = async (req, res) => {
     await user.save();
     res.cookie('accessToken', accessToken);
     res.cookie('refreshToken', refreshToken);
-    res.status(200).json({
-      message: 'Login successful',
-      accessToken,
-      user: { id: user._id, email: user.email },
-    });
+    // res.status(200).json({
+    //   message: 'Login successful',
+    //   accessToken,
+    //   user: { id: user._id, email: user.email },
+    // });
+    return res.redirect('/dashboard');
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }

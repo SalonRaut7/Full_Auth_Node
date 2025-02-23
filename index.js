@@ -7,9 +7,25 @@ const connectDb = require('./config/dbConnection');
 const cookieParser = require('cookie-parser');
 const passport = require('passport');
 const session = require('express-session');
-
+const helmet = require("helmet");
+const mongoSanitize = require("express-mongo-sanitize");
 
 connectDb();
+
+// Use Helmet to secure HTTP headers and allow Tailwind CDN for content security policy
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://cdn.tailwindcss.com"],
+      },
+    },
+  })
+);
+
+// mongo sanitization
+app.use(mongoSanitize());
 
 app.use(
   session({
